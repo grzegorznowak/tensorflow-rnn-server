@@ -4,7 +4,7 @@ Let's use flask to server some RNN time-series model
 
 ## Installation
 
-`pip3 install flask`
+`pip3 install flask importlib`
 
 
 ## Tests
