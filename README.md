@@ -1,4 +1,4 @@
-# tensorflow-rrn-server
+# tensorflow-rnn-server
 Let's use flask to serve some RNN time-series model
 
 
