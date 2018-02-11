@@ -13,7 +13,7 @@ class RNNTimeSeriesServerTestRequests(unittest.TestCase):
 class RNNTimeSeriesServerTestCore(unittest.TestCase):
 
     def test_model_importing(self):
-        stubResponse = rnn_time_series_server.loadModelFromPath(os.path.dirname(os.path.abspath(__file__))+'/stub_module.py', 'stub_module', 'justAStubFunctionForATest')
+        stubResponse = rnn_time_series_server.load_model_from_path(os.path.dirname(os.path.abspath(__file__))+'/stub_module.py', 'stub_module', 'justAStubFunctionForATest')
         self.assertEqual(stubResponse, 1234)
 
 if __name__ == "__main__":
