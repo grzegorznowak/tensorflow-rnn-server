@@ -11,4 +11,4 @@ Let's use flask to server some RNN time-series model
 
 in the root of the project:
 
-`python3 src/tests/rnn_time_series_server_tests.py`
+`python3 src/rnn_time_series_server_tests.py`
