@@ -9,7 +9,7 @@ Let's use flask to serve some RNN time-series model
 ## Development Server launch
 
 #### On Linux
-`export FLASK_APP=app.py && flask run`
+`export FLASK_APP=app.py && flask run --host=0.0.0.0`
 
 ## Production Server launch (DONT USE FOR NOW, IT PROVED TO BE LESS STABLE THAN THE DEV SERVER FOR SOME REASON...)
 
