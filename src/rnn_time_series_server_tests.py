@@ -6,19 +6,19 @@ import os
 class RNNTimeSeriesServerTestRequests(unittest.TestCase):
 
 
-    def test_parsing_input(self):
-        response = requests.get('http://localhost:5000/prediction?observation=10,-10,0,100,9999,0.9999')
-        self.assertIs(response.data, int)
+    def test_predict(self):
+        response = requests.get('http://localhost:5000/prediction?observation=10,-10,0,100,9999,9999')
+        self.assertIs(type(response.json()), int)
 
 
     def test_parsing_input(self):
         response = requests.get('http://localhost:5000/test_parsing_input?observation=10,-10,0,100,9999,0.9999')
-        self.assertEqual(response.data, [10, -10, 0, 9999, 0.9999])
+        self.assertEqual(response.json(), [10, -10, 0, 100, 9999, 0.9999])
 
 
     def test_random_response(self):
         response = requests.get('http://localhost:5000/random')
-        self.assertIs(response.data, int)
+        self.assertIs(type(response.json()), int)
 
 
 class RNNTimeSeriesServerTestCore(unittest.TestCase):
