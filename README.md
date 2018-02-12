@@ -6,11 +6,15 @@ Let's use flask to serve some RNN time-series model
 
 `pip3 install flask importlib`
 
-## Server launch
+## Development Server launch
 
-On Linux
+#### On Linux
 `export FLASK_APP=app.py && flask run`
 
+## Production Server launch
+
+#### On Ubuntu
+`/usr/local/bin/gunicorn app:app`
 
 ## Tests
 
