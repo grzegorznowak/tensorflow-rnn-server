@@ -1,5 +1,8 @@
-from flask import Flask, request, jsonify, session
+from flask  import Flask, request, jsonify, session
+from src    import rnn_time_series_server as rnn
+
 import numpy as np
+
 
 app = Flask(__name__)
 app.debug = True
@@ -15,22 +18,24 @@ def random():
 
 @app.route('/prediction')
 def predict():
-    values = [int(x) for x in request.args.get('observation').split(',')]
-    if 'observations' not in session:
-        session['observations'] = [values]
-    elif len(session['observations']) < 5:
-        session['observations'].append(values)
-    elif len(session['observations']) == 5:
-        # DO SOME ML MAGIC
-        return jsonify(session.pop('observations'))
+    current_observation  = rnn.ObservationData(rnn.raw_observation_to_list(request.args.get('observation')))
+
+    try:
+        rnn.append_observation_to_db(current_observation)
+        prediction = rnn.make_prediction()
+
+        return prediction
+
+
+    except Exception as error:
+        return str("error: control check didn't pass")
     
     # return """we are {} observations away from updating the model; or something""".format(5-len(session['observations']))
-    return str(0)
     
 @app.route('/echo')
 def echo():
     try:
-        values = [float(x) if '.' in x else int(x) for x in request.args.get('observation').split(',')]
+        values = rnn.raw_observation_to_list(request.args.get('observation'))
     except Exception as e:
         print(e)
         return "malformed input"
