@@ -11,7 +11,7 @@ Let's use flask to serve some RNN time-series model
 #### On Linux
 `export FLASK_APP=app.py && flask run`
 
-## Production Server launch
+## Production Server launch (DONT USE FOR NOW, IT PROVED TO BE LESS STABLE THAN THE DEV SERVER FOR SOME REASON...)
 
 #### On Ubuntu
 `/usr/local/bin/gunicorn app:app`
