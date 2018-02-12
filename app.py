@@ -27,8 +27,8 @@ def predict():
     # return """we are {} observations away from updating the model; or something""".format(5-len(session['observations']))
     return str(0)
     
-@app.route('/test_parsing_input')
-def prase_test():
+@app.route('/echo')
+def echo():
     try:
         values = [float(x) if '.' in x else int(x) for x in request.args.get('observation').split(',')]
     except Exception as e:

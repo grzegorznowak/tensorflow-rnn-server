@@ -12,7 +12,7 @@ class RNNTimeSeriesServerTestRequests(unittest.TestCase):
 
 
     def test_parsing_input(self):
-        response = requests.get('http://localhost:5000/test_parsing_input?observation=10,-10,0,100,9999,0.9999')
+        response = requests.get('http://localhost:5000/echo?observation=10,-10,0,100,9999,0.9999')
         self.assertEqual(response.json(), [10, -10, 0, 100, 9999, 0.9999])
 
 
