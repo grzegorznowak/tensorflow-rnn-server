@@ -54,9 +54,9 @@ def append_observation_to_db(observation):
         validate_observations(previous_observation, observation)
 
 
-    # TODO: 5 must be configurable somewhere sometime
+    # TODO: BATCH_SIZE must be configurable somewhere sometime
     if len(databasae) == BATCH_SIZE:
-        # after every 5 batches, flush the database and update the state used to calculate responses against
+        # after every BATCH_SIZE batches, flush the database and update the state used to calculate responses against
         prediction, next_rnn_state = make_prediction()
         database = []
 
@@ -95,15 +95,17 @@ def make_prediction(sess):
 
     return output, state
 
+
 """Adds extra zero vectors up to batch_size"""
 def maybe_fill_batch_with_sparse_vectors(batch, batch_size, observations_count):
     out_batch = batch.copy()
     out_batch.resize((batch_size,observations_count))
     return out_batch
 
+
 """convert observation data back to arrays for convenience of the model"""
 def unpack_labels(observationDataList):
-    return np.array(map(lambda d: [d.open, d.high, d.low, d.close, d.volume, d.time], observationDataList))
+    return np.array(list(map(lambda d: [d.open, d.high, d.low, d.close, d.volume, d.time], observationDataList)))
 
 # def make_a_prediction(previous_step_data):
 #     prediction_batch = create_a_data_batch(next_step_tensor)
