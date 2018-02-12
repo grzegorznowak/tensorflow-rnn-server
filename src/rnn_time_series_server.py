@@ -6,10 +6,12 @@ import numpy as np
 database       = []
 next_rnn_state = None
 
-BATCH_SIZE = 5
+BATCH_SIZE         = 5
 OBSERVATIONS_COUNT = 6
+RNN_NEURONS        = 300  # this is a property of a model, need to be variablized somehow - rather hard, tbd.
+RNN_LAYERS         = 2    # this is a property of a model, need to be variablized somehow - rather hard, tbd.
 
-class ObservationData():
+class ObservationData:
     def __init__(self, list):
         self.open    = list[0]
         self.high    = list[1]
@@ -29,8 +31,8 @@ def load_module_method_from_path(absolutePath, moduleName, nameOfTheFactoryMetho
     return method_to_call
 
 
-# TODO: just a stub, need to populate
-zero_state     = load_module_method_from_path(os.path.dirname(os.path.abspath(__file__))+'/stub_module.py', 'stub_module', 'justAStubFunctionForATest')
+def zero_state():
+    return np.random.rand(1, RNN_NEURONS * RNN_LAYERS)
 
 
 def raw_observation_to_list(observations_string_raw):
