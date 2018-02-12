@@ -1,4 +1,5 @@
 import os
+import numpy as np
 
 # TODO: this is just a stub of a proper backend storage (which we don't actually need at this stage).
 # all we need is a quick turnaround with a working PoC that will show us how good/bad evaluations from the model are
@@ -87,7 +88,7 @@ def validate_observations(observation_prev, observation_next):
 """Calculate model response using data from db"""
 def make_prediction(sess):
 
-    labels = maybe_fill_batch_with_sparse_vectors(unpack_labels(get_db()), BATCH_SIZE)
+    labels = maybe_fill_batch_with_sparse_vectors(unpack_labels(get_db()), BATCH_SIZE, OBSERVATIONS_COUNT)
 
     output = 10; #stub
     state = [1, 1, 1] #stub
@@ -95,12 +96,10 @@ def make_prediction(sess):
     return output, state
 
 """Adds extra zero vectors up to batch_size"""
-def maybe_fill_batch_with_sparse_vectors(batch, batch_size):
-    if len(batch) < batch_size:
-        return batch
-
-    return batch
-
+def maybe_fill_batch_with_sparse_vectors(batch, batch_size, observations_count):
+    out_batch = batch.copy()
+    out_batch.resize((batch_size,observations_count))
+    return out_batch
 
 """convert observation data back to arrays for convenience of the model"""
 def unpack_labels(observationDataList):

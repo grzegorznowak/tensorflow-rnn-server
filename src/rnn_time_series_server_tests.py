@@ -2,6 +2,8 @@ import unittest
 import requests
 import rnn_time_series_server
 import os
+import numpy as np
+from numpy.testing import assert_array_equal
 
 class RNNTimeSeriesServerTestRequests(unittest.TestCase):
 
@@ -50,8 +52,8 @@ class RNNTimeSeriesServerTestCore(unittest.TestCase):
         self.fail
 
     def test_filling_batch(self):
-        output = rnn_time_series_server.maybe_fill_batch_with_sparse_vectors([1,1,1,1,1,0.1], 5)
-        self.assertEqual(output, [[1,1,1,1,1,0.1], [0,0,0,0,0,0], [0,0,0,0,0,0], [0,0,0,0,0,0], [0,0,0,0,0,0]])
+        output = rnn_time_series_server.maybe_fill_batch_with_sparse_vectors(np.array([1,1,1,1,1,0.1]), 5, 6)
+        assert_array_equal(output, np.array([[1,1,1,1,1,0.1], [0,0,0,0,0,0], [0,0,0,0,0,0], [0,0,0,0,0,0], [0,0,0,0,0,0]]))
 
 if __name__ == "__main__":
     unittest.main()
