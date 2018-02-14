@@ -21,15 +21,15 @@ class RNNTimeSeriesServerTestRequests(unittest.TestCase):
     def test_failsafe_when_next_observation_isnt_actually_next(self):
         requests.get('http://localhost:5000/prediction?observation=10,-10,0,100,9999,0.9999,1')
         response1 = requests.get('http://localhost:5000/prediction?observation=10,-10,0,100,9999,0.9999,3')  # this should be 2, 3 means we skipped a data
-        self.assertEqual(response1, "error: control check didn't pass")
+        self.assertEqual(response1.json(), "Observation data skipped an entry")
 
         requests.get('http://localhost:5000/prediction?observation=10,-10,0,100,9999,0.9999,4')
         response2 = requests.get('http://localhost:5000/prediction?observation=10,-10,0,100,9999,0.9999,1')  # this should be 5
-        self.assertEqual(response2, "error: control check didn't pass")
+        self.assertEqual(response2.json(), "Wrong ordering of observation data")
 
         requests.get('http://localhost:5000/prediction?observation=10,-10,0,100,9999,0.9999,2')
         response3 = requests.get('http://localhost:5000/prediction?observation=10,-10,0,100,9999,0.9999,0')  # this is actually OK, since new day
-        self.assertNotEqual(response3, "error: control check didn't pass")
+        self.assertNotEqual(response3.json(), "error: control check didn't pass")
         self.assertIs(type(response3.json()), int)
 
 

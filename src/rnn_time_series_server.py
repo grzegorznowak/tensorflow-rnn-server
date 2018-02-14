@@ -6,8 +6,9 @@ import numpy as np
 database       = []
 next_rnn_state = None
 
-BATCH_SIZE         = 5
+BATCH_SIZE         = 10
 OBSERVATIONS_COUNT = 6
+STEPS_COUNT        = 5
 RNN_NEURONS        = 300  # this is a property of a model, need to be variablized somehow - rather hard, tbd.
 RNN_LAYERS         = 2    # this is a property of a model, need to be variablized somehow - rather hard, tbd.
 
@@ -32,7 +33,7 @@ def load_module_method_from_path(absolutePath, moduleName, nameOfTheFactoryMetho
 
 
 def zero_state():
-    return np.random.rand(1, RNN_NEURONS * RNN_LAYERS)
+    return np.random.rand(BATCH_SIZE, RNN_NEURONS * RNN_LAYERS)
 
 
 def raw_observation_to_list(observations_string_raw):
@@ -47,20 +48,15 @@ def append_observation_to_db(observation):
     global database
     global next_rnn_state
 
-    if is_it_a_new_day(observation):
-        database = [observation]
+    if is_it_a_new_day(observation) or next_rnn_state is None:
+        database = []
         next_rnn_state = zero_state()
 
     else:
         previous_observation = db_last_element()
-        validate_observations(previous_observation, observation)
+        if previous_observation is not None:  # which is possible if we went onto a new batch
+            validate_observations(previous_observation, observation)
 
-
-    # TODO: BATCH_SIZE must be configurable somewhere sometime
-    if len(databasae) == BATCH_SIZE:
-        # after every BATCH_SIZE batches, flush the database and update the state used to calculate responses against
-        prediction, next_rnn_state = make_prediction()
-        database = []
 
     database.append(observation)
     return database
@@ -79,29 +75,51 @@ def get_db():
     return database
 
 
+def flush_db():
+    global database
+    database = []
+
 """Need to get a feel of the data, if they make sense in general"""
 def validate_observations(observation_prev, observation_next):
+    print(observation_prev.control)
+    print(observation_next.control)
     if observation_prev.control > observation_next.control:
         raise Exception('Wrong ordering of observation data')
-    if observation_next.control > observation_prev.control+1:
+    if observation_next.control != observation_prev.control + 1:
         raise Exception('Observation data skipped an entry')
 
 
 """Calculate model response using data from db"""
-def make_prediction(sess):
+def make_prediction(sess, outputs_op, initial_state_placeholder,
+                    X_placeholder, is_training_placeholder, keep_prob, final_state_op):
 
-    labels = maybe_fill_batch_with_sparse_vectors(unpack_labels(get_db()), BATCH_SIZE, OBSERVATIONS_COUNT)
+    global next_rnn_state
+    db = get_db()
+    db_len = len(db)
 
-    output = 10; #stub
-    state = [1, 1, 1] #stub
+    labels  = maybe_fill_batch_with_sparse_vectors(unpack_labels(get_db()), BATCH_SIZE, STEPS_COUNT, OBSERVATIONS_COUNT)
 
-    return output, state
+    outputs, new_states = sess.run([outputs_op, final_state_op], feed_dict={X_placeholder: labels,
+                                               keep_prob: 1,
+                                               initial_state_placeholder: next_rnn_state,
+                                               is_training_placeholder:False})
+
+
+    # TODO: BATCH_SIZE must be configurable somewhere sometime
+    # reprime RNN state every BATCH_SIZE full data batches
+    if db_len == STEPS_COUNT:
+
+        next_rnn_state = new_states
+        flush_db()
+        print("db flushed")
+
+    return  round(np.transpose(outputs[0])[0][db_len - 1], 0)
 
 
 """Adds extra zero vectors up to batch_size"""
-def maybe_fill_batch_with_sparse_vectors(batch, batch_size, observations_count):
+def maybe_fill_batch_with_sparse_vectors(batch, batch_size, steps_count, observations_count):
     out_batch = batch.copy()
-    out_batch.resize((batch_size,observations_count))
+    out_batch.resize((batch_size, steps_count, observations_count))
     return out_batch
 
 
