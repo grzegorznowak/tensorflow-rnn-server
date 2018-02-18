@@ -6,10 +6,10 @@ import numpy as np
 database       = []
 next_rnn_state = None
 
-BATCH_SIZE         = 10
-OBSERVATIONS_COUNT = 6
-STEPS_COUNT        = 5
-RNN_NEURONS        = 300  # this is a property of a model, need to be variablized somehow - rather hard, tbd.
+BATCH_SIZE         = 125
+OBSERVATIONS_COUNT = 18
+STEPS_COUNT        = 1
+RNN_NEURONS        = 200  # this is a property of a model, need to be variablized somehow - rather hard, tbd.
 RNN_LAYERS         = 2    # this is a property of a model, need to be variablized somehow - rather hard, tbd.
 
 class ObservationData:
@@ -33,7 +33,7 @@ def load_module_method_from_path(absolutePath, moduleName, nameOfTheFactoryMetho
 
 
 def zero_state():
-    return np.random.rand(BATCH_SIZE, RNN_NEURONS * RNN_LAYERS)
+    return np.random.randn(BATCH_SIZE, RNN_NEURONS * RNN_LAYERS)
 
 
 def raw_observation_to_list(observations_string_raw):
@@ -97,13 +97,11 @@ def make_prediction(sess, outputs_op, initial_state_placeholder,
     db = get_db()
     db_len = len(db)
 
-    labels  = maybe_fill_batch_with_sparse_vectors(unpack_labels(get_db()), BATCH_SIZE, STEPS_COUNT, OBSERVATIONS_COUNT)
-
-    outputs, new_states = sess.run([outputs_op, final_state_op], feed_dict={X_placeholder: labels,
+    observations  = maybe_fill_batch_with_sparse_vectors(unpack_labels(get_db()), BATCH_SIZE, STEPS_COUNT, OBSERVATIONS_COUNT)
+    outputs, new_states = sess.run([outputs_op, final_state_op], feed_dict={X_placeholder: observations,
                                                keep_prob: 1,
                                                initial_state_placeholder: next_rnn_state,
                                                is_training_placeholder:False})
-
 
     # TODO: BATCH_SIZE must be configurable somewhere sometime
     # reprime RNN state every BATCH_SIZE full data batches
@@ -113,7 +111,7 @@ def make_prediction(sess, outputs_op, initial_state_placeholder,
         flush_db()
         print("db flushed")
 
-    return  round(np.transpose(outputs[0])[0][db_len - 1], 0)
+    return  outputs[0][0]
 
 
 """Adds extra zero vectors up to batch_size"""
